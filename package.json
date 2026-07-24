@@ -1,0 +1,11 @@
+{
+  "name": "hapen-blog-automation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Automação de geração e publicação de artigos no blog da Hapen Imóveis",
+  "dependencies": {
+    "@sparticuz/chromium-min": "^123.0.1",
+    "cheerio": "^1.0.0",
+    "puppeteer-core": "^22.15.0"
+  }
+}
