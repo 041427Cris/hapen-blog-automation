@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hapen · Automação de Blog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal:#75BDA7;
+    --teal-dark:#4f8a77;
+    --gold:#C9A24B;
+    --ink:#1f2a28;
+    --paper:#fbfaf7;
+    --card:#ffffff;
+    --line:#e4e1d8;
+    --error:#b3402f;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.5}
+  header{padding:32px 40px 16px;border-bottom:1px solid var(--line)}
+  header h1{font-family:'Playfair Display',serif;font-size:28px;margin:0 0 4px}
+  header p{margin:0;color:#5a6663;font-size:14px}
+  main{max-width:880px;margin:0 auto;padding:32px 24px 80px}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:28px;margin-bottom:24px}
+  .step h2{font-family:'Playfair Display',serif;font-size:19px;margin:0 0 4px;display:flex;align-items:center;gap:10px}
+  .step h2 .n{width:26px;height:26px;border-radius:50%;background:var(--teal);color:#fff;font-family:'Inter';font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .step .hint{color:#5a6663;font-size:13px;margin:0 0 16px 36px}
+  input[type=text], input[type=url]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:6px;font-size:15px;font-family:inherit}
+  button{cursor:pointer;font-family:inherit;font-weight:600;font-size:14px;border:none;border-radius:6px;padding:11px 20px;transition:opacity .15s}
+  button.primary{background:var(--teal);color:#fff}
+  button.primary:hover{opacity:.9}
+  button.secondary{background:transparent;color:var(--teal-dark);border:1px solid var(--teal)}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .row{display:flex;gap:10px;margin-top:14px}
+  .field{margin-bottom:16px;padding-left:36px}
+  .field label{display:block;font-size:12px;font-weight:600;color:#5a6663;text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px}
+  .field textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;font-family:inherit;font-size:14px;min-height:70px}
+  .articles{display:grid;gap:16px;padding-left:36px}
+  .article-card{border:1px solid var(--line);border-radius:8px;padding:18px;background:#fdfcf9}
+  .article-card .angle{display:inline-block;background:var(--gold);color:#fff;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:3px 9px;border-radius:4px;margin-bottom:10px}
+  .article-card h3{margin:0 0 8px;font-family:'Playfair Display',serif;font-size:17px}
+  .article-card .seo{font-size:12px;color:#5a6663;border-top:1px dashed var(--line);margin-top:12px;padding-top:10px}
+  .article-card .seo b{color:var(--ink)}
+  .status-list{padding-left:36px;display:grid;gap:8px}
+  .status-item{display:flex;justify-content:space-between;font-size:14px;padding:8px 12px;background:#f4f2ec;border-radius:6px}
+  .status-item.ok{color:var(--teal-dark)}
+  .status-item.erro{color:var(--error)}
+  .msg{padding-left:36px;font-size:13px;color:var(--error);margin-top:8px}
+  .muted{color:#8b948f}
+  .spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .hidden{display:none !important}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Automação de Blog · Hapen Imóveis</h1>
+  <p>Cole o link de um imóvel ou empreendimento e gere 3 artigos otimizados para SEO/GEO, prontos como rascunho no blog.</p>
+</header>
+
+<main>
+
+  <section class="step" id="step1">
+    <h2><span class="n">1</span> Dados do imóvel/empreendimento</h2>
+    <p class="hint">Escolha a forma mais fácil pra você.</p>
+    <div style="padding-left:36px">
+      <div class="row" style="margin-top:0;margin-bottom:16px">
+        <button class="tab-btn secondary" data-tab="link" style="background:var(--teal);color:#fff">Colar link</button>
+        <button class="tab-btn secondary" data-tab="texto">Colar texto</button>
+        <button class="tab-btn secondary" data-tab="pdf">Enviar PDF</button>
+      </div>
+
+      <div id="tabLink">
+        <input type="url" id="imovelUrl" placeholder="https://hapenimoveis.com.br/empreendimento/..." />
+        <div class="row"><button class="primary" id="btnExtractLink">Extrair dados do link</button></div>
+        <p class="hint" style="padding-left:0;margin-top:8px">A extração automática do link é "melhor esforço" — alguns campos podem vir em branco e precisar de ajuste manual na próxima tela.</p>
+      </div>
+
+      <div id="tabTexto" class="hidden">
+        <textarea id="imovelTexto" style="width:100%;min-height:160px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;font-family:inherit;font-size:14px" placeholder="Cole aqui o texto do imóvel/empreendimento (descrição, diferenciais, endereço, preço...)"></textarea>
+        <div class="row"><button class="primary" id="btnExtractTexto">Extrair dados do texto</button></div>
+      </div>
+
+      <div id="tabPdf" class="hidden">
+        <input type="file" id="imovelPdf" accept="application/pdf" />
+        <div class="row"><button class="primary" id="btnExtractPdf">Extrair dados do PDF</button></div>
+      </div>
+
+      <div class="msg hidden" id="extractError"></div>
+    </div>
+  </section>
+
+  <section class="step hidden" id="step2">
+    <h2><span class="n">2</span> Confira os dados extraídos</h2>
+    <p class="hint">Ajuste qualquer campo antes de gerar os artigos.</p>
+    <div class="field"><label>Título</label><textarea id="fTitle"></textarea></div>
+    <div class="field"><label>Bairro / endereço</label><textarea id="fAddress"></textarea></div>
+    <div class="field"><label>Preço</label><textarea id="fPrice"></textarea></div>
+    <div class="field"><label>Descrição</label><textarea id="fDescription" style="min-height:110px"></textarea></div>
+    <div class="field"><label>Diferenciais (um por linha)</label><textarea id="fFeatures" style="min-height:90px"></textarea></div>
+    <div class="field"><label>Categoria do blog (nome exato como aparece no WordPress)</label><textarea id="fCategory" style="min-height:40px"></textarea></div>
+    <div class="field"><label>Tags (separadas por vírgula)</label><textarea id="fTags" style="min-height:40px"></textarea></div>
+    <div class="field">
+      <label>Foto de capa (obrigatório se você usou "Colar texto" ou "Enviar PDF", já que não trazem fotos)</label>
+      <input type="file" id="fCoverImage" accept="image/*" />
+      <div id="coverPreviewWrap" class="hidden" style="margin-top:8px"><img id="coverPreview" style="max-width:200px;border-radius:6px;border:1px solid var(--line)" /></div>
+    </div>
+    <div class="row" style="padding-left:36px">
+      <button class="primary" id="btnGenerate">Gerar os 3 artigos</button>
+    </div>
+    <div class="msg hidden" id="generateError"></div>
+  </section>
+
+  <section class="step hidden" id="step3">
+    <h2><span class="n">3</span> Revise os artigos</h2>
+    <p class="hint">Gerados por IA com foco em SEO e busca por IA (GEO). Serão enviados como rascunho — nada é publicado direto.</p>
+    <div class="articles" id="articlesList"></div>
+    <div class="row" style="padding-left:36px;margin-top:20px">
+      <button class="primary" id="btnPublish">Enviar como rascunho para o WordPress</button>
+    </div>
+    <div class="msg hidden" id="publishError"></div>
+  </section>
+
+  <section class="step hidden" id="step4">
+    <h2><span class="n">4</span> Status da publicação</h2>
+    <p class="hint" id="statusHint"><span class="spinner"></span> Fazendo login e preenchendo os posts no WordPress...</p>
+    <div class="status-list" id="statusList"></div>
+  </section>
+
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let imovelData = null;
+let articles = null;
+let coverImageBase64 = null;
+let coverImageMime = null;
+
+function showStep(n){
+  [1,2,3,4].forEach(i => $('step'+i).classList.toggle('hidden', i !== n));
+}
+function showError(id, msg){
+  const el = $(id); el.textContent = msg; el.classList.remove('hidden');
+}
+function hideError(id){ $(id).classList.add('hidden'); }
+
+// --- Tabs (link / texto / pdf) ---
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => { b.style.background=''; b.style.color=''; });
+    btn.style.background = 'var(--teal)'; btn.style.color = '#fff';
+    ['tabLink','tabTexto','tabPdf'].forEach(id => $(id).classList.add('hidden'));
+    $('tab' + btn.dataset.tab.charAt(0).toUpperCase() + btn.dataset.tab.slice(1)).classList.remove('hidden');
+  });
+});
+
+function populateStep2(data, missingFields){
+  imovelData = data;
+  $('fTitle').value = data.title || '';
+  $('fAddress').value = data.address || '';
+  $('fPrice').value = data.price || '';
+  $('fDescription').value = data.description || '';
+  $('fFeatures').value = (data.features || []).join('\n');
+  $('fCategory').value = '';
+  $('fTags').value = '';
+  if (missingFields && missingFields.length) {
+    showError('extractError', 'Alguns campos vieram vazios (' + missingFields.join(', ') + ') — confira e complete manualmente abaixo.');
+  } else {
+    hideError('extractError');
+  }
+  showStep(2);
+}
+
+async function runExtraction(btnId, fn){
+  hideError('extractError');
+  const btn = $(btnId);
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Extraindo...';
+  try {
+    await fn();
+  } catch (err) {
+    showError('extractError', err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+$('btnExtractLink').addEventListener('click', () => runExtraction('btnExtractLink', async () => {
+  const url = $('imovelUrl').value.trim();
+  if (!url) throw new Error('Cole um link primeiro.');
+  const res = await fetch('/.netlify/functions/extract-imovel', {
+    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({url})
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || 'Erro ao extrair dados');
+  populateStep2(json.data, json.missing);
+}));
+
+$('btnExtractTexto').addEventListener('click', () => runExtraction('btnExtractTexto', async () => {
+  const text = $('imovelTexto').value.trim();
+  if (!text) throw new Error('Cole o texto primeiro.');
+  const res = await fetch('/.netlify/functions/extract-from-text', {
+    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({text})
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || 'Erro ao extrair dados');
+  populateStep2(json.data);
+}));
+
+$('btnExtractPdf').addEventListener('click', () => runExtraction('btnExtractPdf', async () => {
+  const file = $('imovelPdf').files[0];
+  if (!file) throw new Error('Selecione um PDF primeiro.');
+  const base64 = await new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result.split(',')[1]);
+    r.onerror = () => reject(new Error('Falha ao ler o arquivo'));
+    r.readAsDataURL(file);
+  });
+  const res = await fetch('/.netlify/functions/extract-from-pdf', {
+    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({pdfBase64: base64})
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || 'Erro ao extrair dados');
+  populateStep2(json.data);
+}));
+
+$('fCoverImage').addEventListener('change', async () => {
+  const file = $('fCoverImage').files[0];
+  if (!file) return;
+  coverImageMime = file.type;
+  coverImageBase64 = await new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result.split(',')[1]);
+    r.onerror = () => reject(new Error('Falha ao ler a imagem'));
+    r.readAsDataURL(file);
+  });
+  $('coverPreview').src = 'data:' + coverImageMime + ';base64,' + coverImageBase64;
+  $('coverPreviewWrap').classList.remove('hidden');
+});
+
+$('btnGenerate').addEventListener('click', async () => {
+  hideError('generateError');
+  imovelData = {
+    ...imovelData,
+    title: $('fTitle').value,
+    address: $('fAddress').value,
+    price: $('fPrice').value,
+    description: $('fDescription').value,
+    features: $('fFeatures').value.split('\n').map(s => s.trim()).filter(Boolean),
+    suggestedCategory: $('fCategory').value.trim(),
+    tags: $('fTags').value.split(',').map(s => s.trim()).filter(Boolean),
+    coverImageBase64: coverImageBase64 || null,
+    coverImageMime: coverImageMime || null,
+  };
+  if ((!imovelData.gallery || !imovelData.gallery.length) && !coverImageBase64) {
+    return showError('generateError', 'Suba uma foto de capa acima antes de continuar (não veio nenhuma foto automaticamente).');
+  }
+  $('btnGenerate').disabled = true;
+  $('btnGenerate').textContent = 'Gerando artigos (pode levar até 1 minuto)...';
+  const jobId = 'gen-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+  try {
+    const res = await fetch('/.netlify/functions/generate-articles-background', {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({jobId, imovel: imovelData})
+    });
+    if (!res.ok && res.status !== 202) throw new Error('Erro ao iniciar geração (status ' + res.status + ')');
+    await pollGenerate(jobId);
+  } catch (err) {
+    showError('generateError', err.message);
+    $('btnGenerate').disabled = false;
+    $('btnGenerate').textContent = 'Gerar os 3 artigos';
+  }
+});
+
+async function pollGenerate(jobId){
+  const res = await fetch('/.netlify/functions/check-status?jobId=' + jobId);
+  const job = await res.json();
+  if (job.done) {
+    $('btnGenerate').disabled = false;
+    $('btnGenerate').textContent = 'Gerar os 3 artigos';
+    if (job.error) {
+      showError('generateError', job.error);
+      return;
+    }
+    articles = job.articles;
+    renderArticles();
+    showStep(3);
+  } else {
+    setTimeout(() => pollGenerate(jobId), 3000);
+  }
+}
+
+function renderArticles(){
+  $('articlesList').innerHTML = articles.map((a, i) => `
+    <div class="article-card">
+      <span class="angle">${a.angleLabel}</span>
+      <h3><input type="text" value="${a.title.replace(/"/g,'&quot;')}" style="width:100%;border:none;font-family:inherit;font-size:17px;font-weight:700;background:transparent" data-idx="${i}" data-field="title" /></h3>
+      <textarea style="width:100%;min-height:160px;border:1px solid var(--line);border-radius:6px;padding:10px;font-family:inherit;font-size:13px" data-idx="${i}" data-field="contentHtml">${a.contentHtml}</textarea>
+      <div class="seo">
+        <div><b>SEO title:</b> <input type="text" value="${a.seoTitle.replace(/"/g,'&quot;')}" data-idx="${i}" data-field="seoTitle" style="width:70%"/></div>
+        <div><b>Slug:</b> <input type="text" value="${a.slug}" data-idx="${i}" data-field="slug" style="width:70%"/></div>
+        <div><b>Meta description:</b> <input type="text" value="${a.metaDescription.replace(/"/g,'&quot;')}" data-idx="${i}" data-field="metaDescription" style="width:70%"/></div>
+        <div><b>Focus keyphrase:</b> <input type="text" value="${a.focusKeyphrase}" data-idx="${i}" data-field="focusKeyphrase" style="width:70%"/></div>
+      </div>
+    </div>
+  `).join('');
+
+  $('articlesList').querySelectorAll('[data-field]').forEach(el => {
+    el.addEventListener('input', (e) => {
+      const idx = +e.target.dataset.idx;
+      const field = e.target.dataset.field;
+      articles[idx][field] = e.target.value;
+    });
+  });
+}
+
+$('btnPublish').addEventListener('click', async () => {
+  hideError('publishError');
+  $('btnPublish').disabled = true;
+  $('btnPublish').textContent = 'Enviando...';
+  const jobId = 'pub-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+  try {
+    const res = await fetch('/.netlify/functions/publish-wordpress-background', {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({jobId, articles, imovel: imovelData})
+    });
+    if (!res.ok && res.status !== 202) throw new Error('Erro ao iniciar publicação (status ' + res.status + ')');
+    showStep(4);
+    pollStatus(jobId);
+  } catch (err) {
+    showError('publishError', err.message);
+  } finally {
+    $('btnPublish').disabled = false;
+    $('btnPublish').textContent = 'Enviar como rascunho para o WordPress';
+  }
+});
+
+async function pollStatus(jobId){
+  const res = await fetch('/.netlify/functions/check-status?jobId=' + jobId);
+  const job = await res.json();
+  if (job.done) {
+    $('statusHint').innerHTML = 'Concluído.';
+    $('statusList').innerHTML = job.results.map(r => `
+      <div class="status-item ${r.status === 'ok' ? 'ok' : 'erro'}">
+        <span>${r.angle || 'Geral'}</span>
+        <span>${r.status === 'ok' ? ('✓ Rascunho criado — <a href="'+r.draftUrl+'" target="_blank">abrir</a>') : ('✗ ' + (r.error || 'erro'))}</span>
+      </div>
+    `).join('');
+  } else {
+    setTimeout(() => pollStatus(jobId), 4000);
+  }
+}
+</script>
+
+</body>
+</html>
