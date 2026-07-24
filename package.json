@@ -1,0 +1,12 @@
+{
+  "name": "hapen-blog-automation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Automação de geração e publicação de artigos no blog da Hapen Imóveis",
+  "dependencies": {
+    "@netlify/blobs": "^7.0.0",
+    "@sparticuz/chromium": "^123.0.1",
+    "cheerio": "^1.0.0",
+    "playwright-core": "^1.45.0"
+  }
+}

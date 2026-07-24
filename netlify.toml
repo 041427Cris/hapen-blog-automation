@@ -1,0 +1,12 @@
+[build]
+  functions = "netlify/functions"
+  publish = "."
+
+[functions]
+  node_bundler = "esbuild"
+  # publish-wordpress usa Playwright + Chromium, precisa rodar como background function
+  # (limite de 15 min em vez de 10s), por isso o nome termina em "-background"
+  included_files = ["netlify/functions/**"]
+
+[functions."publish-wordpress-background"]
+  timeout = 900
